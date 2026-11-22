@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>我的優秀伴侶神隊友 — 年度感恩推薦與人氣票選</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Noto Sans TC & Noto Serif TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet" />
+  <!-- QRCode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans TC"', '"Inter"', 'sans-serif'],
+            serif: ['"Noto Serif TC"', 'serif'],
+          },
+          colors: {
+            cream: {
+              50: '#FFFDFB',
+              100: '#FFF8F3',
+              200: '#FDEEE4',
+            },
+            rosewarm: {
+              50: '#FFF1F2',
+              100: '#FFE4E6',
+              200: '#FECDD3',
+              400: '#FB7185',
+              500: '#F43F5E',
+              600: '#E11D48',
+              700: '#BE123C',
+            },
+            amberwarm: {
+              50: '#FFFBEB',
+              100: '#FEF3C7',
+              500: '#F59E0B',
+              600: '#D97706',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #FFF8F3;
+      background-image:
+        radial-gradient(at 0% 0%, rgba(254, 205, 211, 0.35) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(254, 243, 199, 0.45) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(255, 228, 230, 0.3) 0px, transparent 50%);
+      min-height: 100vh;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .tab-transition {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+    .animate-float {
+      animation: floatSlow 3.5s ease-in-out infinite;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FFF8F3;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #FECDD3;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #FB7185;
+    }
+  </style>
+</head>
+<body class="text-stone-800 antialiased selection:bg-rose-200 selection:text-rose-900">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- Custom Modal Overlay (Replaces alert / confirm & handles QR zoom / Delete / Reset) -->
+  <div id="custom-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-stone-900/50 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 border border-rose-100 transform transition-all">
+      <div id="modal-icon" class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-4 text-2xl">
+        💌
+      </div>
+      <h3 id="modal-title" class="text-xl font-serif font-bold text-center text-stone-800 mb-2">提示</h3>
+      <div id="modal-body" class="text-stone-600 text-sm sm:text-base text-center mb-6 leading-relaxed"></div>
+      <div id="modal-actions" class="flex flex-col sm:flex-row gap-3 justify-center"></div>
+    </div>
+  </div>
+
+  <!-- Header & Navigation -->
+  <header class="sticky top-0 z-30 glass-card border-b border-rose-100/80 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-3 sm:py-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <!-- Brand Title -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('nominate')">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-rose-200 text-xl">
+              💝
+            </div>
+            <div>
+              <h1 class="text-lg sm:text-xl font-serif font-bold bg-gradient-to-r from-rose-600 to-amber-600 bg-clip-text text-transparent">
+                我的優秀伴侶神隊友
+              </h1>
+              <p class="text-xs text-stone-500 hidden sm:block">年度感恩事蹟推薦 ‧ 匿名展示 ‧ 人氣票選</p>
+            </div>
+          </div>
+          <!-- Live Connection Status Badge (Mobile) -->
+          <div id="connection-status-mobile" class="md:hidden flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            <span>連線中</span>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav id="main-nav" class="grid grid-cols-4 gap-1.5 sm:flex sm:items-center sm:gap-2 bg-rose-50/80 p-1.5 rounded-2xl border border-rose-100">
+          <button onclick="switchTab('nominate')" id="nav-nominate" class="nav-btn tab-transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium">
+            <span>✍️</span>
+            <span>填寫推薦</span>
+          </button>
+          <button onclick="switchTab('wall')" id="nav-wall" class="nav-btn tab-transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium relative">
+            <span>💌</span>
+            <span>匿名牆</span>
+            <span id="badge-wall-count" class="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 text-[11px] font-bold rounded-full bg-rose-200/80 text-rose-800">0</span>
+          </button>
+          <button onclick="switchTab('vote')" id="nav-vote" class="nav-btn tab-transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium">
+            <span>🗳️</span>
+            <span>QR 投票</span>
+          </button>
+          <button onclick="switchTab('reveal')" id="nav-reveal" class="nav-btn tab-transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium">
+            <span>👑</span>
+            <span>最終揭曉</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="max-w-5xl mx-auto px-4 py-6 sm:py-10 pb-20">
+
+    <!-- Loading Skeleton while Firebase initializes -->
+    <div id="loading-screen" class="flex flex-col items-center justify-center py-20 text-center">
+      <div class="w-14 h-14 rounded-3xl bg-rose-100 text-rose-500 flex items-center justify-center text-3xl animate-bounce mb-4 shadow-sm">
+        💕
+      </div>
+      <p class="text-stone-600 font-medium">正在同步活動現場資料，請稍候...</p>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: 填寫推薦 (投稿區)                   -->
+    <!-- ========================================== -->
+    <section id="section-nominate" class="hidden space-y-6">
+      <div class="max-w-2xl mx-auto">
+        <!-- Hero Banner -->
+        <div class="text-center mb-6 sm:mb-8">
+          <span class="inline-block px-3.5 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-semibold tracking-wide mb-3">
+            ✨ 說出平時害羞說出口的感謝
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-serif font-bold text-stone-800 mb-2">
+            推薦你的神隊友！
+          </h2>
+          <p class="text-sm sm:text-base text-stone-600 leading-relaxed">
+            寫下今年最讓你感動、難忘或想感謝的事蹟。送出後將以<strong class="text-rose-600 font-semibold">匿名代號</strong>登上展示牆參與票選，直到最終開票才揭曉是哪位優秀伴侶喔！
+          </p>
+
+          <!-- Organizer Share Link Bar (Hidden in ?mode=submit) -->
+          <div id="organizer-share-bar" class="mt-4 inline-flex flex-col sm:flex-row items-center gap-2 bg-white/90 border border-rose-200 rounded-2xl px-4 py-2.5 shadow-sm">
+            <span class="text-xs text-stone-500 font-medium">📢 活動前期徵稿專用：</span>
+            <button
+              type="button"
+              onclick="copySubmitOnlyLink()"
+              class="px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5"
+            >
+              <span>🔗</span>
+              <span>複製「純投稿專用」分享連結</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Nomination Form Card -->
+        <div class="glass-card rounded-3xl shadow-xl shadow-rose-100/60 border border-rose-100 p-6 sm:p-8">
+          <form id="nomination-form" class="space-y-6">
+            <!-- Real Name (Hidden until reveal) -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label for="input-realname" class="block text-sm font-semibold text-stone-700">
+                  1. 被推薦人真實姓名或暱稱 <span class="text-rose-500">*</span>
+                </label>
+                <span class="inline-flex items-center gap-1 text-xs font-medium text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+                  🔒 揭曉前完全保密
+                </span>
+              </div>
+              <input
+                type="text"
+                id="input-realname"
+                required
+                maxlength="30"
+                placeholder="例如：陳大明、小美、家裡的大廚..."
+                class="w-full px-4 py-3 rounded-2xl bg-white border border-stone-200 focus:border-rose-400 focus:ring-4 focus:ring-rose-100 outline-none transition text-stone-800 placeholder:text-stone-400"
+              />
+            </div>
+
+            <!-- Recommender Name (Optional) -->
+            <div>
+              <label for="input-recommender" class="block text-sm font-semibold text-stone-700 mb-1.5">
+                2. 推薦人暱稱 <span class="text-xs font-normal text-stone-400">（選填，揭曉時一同公布）</span>
+              </label>
+              <input
+                type="text"
+                id="input-recommender"
+                maxlength="30"
+                placeholder="例如：永遠愛你的另一半、隔壁老王..."
+                class="w-full px-4 py-3 rounded-2xl bg-white border border-stone-200 focus:border-rose-400 focus:ring-4 focus:ring-rose-100 outline-none transition text-stone-800 placeholder:text-stone-400"
+              />
+            </div>
+
+            <!-- Story / Reason -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label for="input-story" class="block text-sm font-semibold text-stone-700">
+                  3. 今年想感謝、難忘的事蹟或推薦理由 <span class="text-rose-500">*</span>
+                </label>
+                <span id="story-char-count" class="text-xs text-stone-400">0 / 500</span>
+              </div>
+              <textarea
+                id="input-story"
+                required
+                rows="5"
+                maxlength="500"
+                placeholder="寫下他/她今年做過最讓你暖心的舉動、默默付出的日常，或是值得拿冠軍的優秀事蹟吧！（請避免在內容中直接寫出本名，才能保持神秘感喔～）"
+                class="w-full px-4 py-3 rounded-2xl bg-white border border-stone-200 focus:border-rose-400 focus:ring-4 focus:ring-rose-100 outline-none transition text-stone-800 placeholder:text-stone-400 leading-relaxed resize-none"
+              ></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              id="btn-submit-nomination"
+              class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-rose-500 via-rose-600 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white font-bold text-base sm:text-lg shadow-lg shadow-rose-200 hover:shadow-xl transition-all transform active:scale-[0.99] flex items-center justify-center gap-2"
+            >
+              <span>💌</span>
+              <span>送出感恩推薦，取得匿名代號</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: 匿名展示牆 (事蹟一覽)               -->
+    <!-- ========================================== -->
+    <section id="section-wall" class="hidden space-y-6">
+      <div class="pb-3 border-b border-rose-100">
+        <span class="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold mb-2">
+          🕵️‍♂️ 猜猜看誰是誰？
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-serif font-bold text-stone-800">
+          匿名事蹟展示牆
+        </h2>
+        <p class="text-sm text-stone-600 mt-1">
+          目前已收錄 <strong id="wall-total-num" class="text-rose-600">0</strong> 篇感人事蹟。閱讀完畢後，歡迎前往投票區支持你心中的前三名！
+        </p>
+      </div>
+
+      <!-- Cards Grid -->
+      <div id="wall-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Populated dynamically via JS -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="wall-empty" class="hidden glass-card rounded-3xl p-10 text-center border border-rose-100 max-w-lg mx-auto">
+        <div class="text-5xl mb-3">📝</div>
+        <h3 class="text-lg font-bold text-stone-800 mb-1">目前還沒有推薦事蹟喔！</h3>
+        <p class="text-sm text-stone-500 mb-5">快成為第一位投稿的人，大聲讚美你的優秀另一半吧！</p>
+        <button onclick="switchTab('nominate')" class="px-6 py-2.5 rounded-xl bg-rose-500 text-white font-semibold text-sm hover:bg-rose-600 transition shadow-sm">
+          前往填寫推薦
+        </button>
+      </div>
+
+      <!-- Quick Action Footer to Vote -->
+      <div id="wall-cta" class="hidden pt-4 text-center">
+        <button onclick="switchTab('vote')" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-gradient-to-r from-rose-500 to-amber-500 text-white font-bold shadow-lg shadow-rose-200 hover:shadow-xl transition transform hover:-translate-y-0.5">
+          <span>🗳️</span>
+          <span>看完了！前往投票選出前三名</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: QR Code 投票區                      -->
+    <!-- ========================================== -->
+    <section id="section-vote" class="hidden space-y-6">
+      <div class="max-w-3xl mx-auto space-y-6">
+        
+        <!-- QR Code Share Banner -->
+        <div class="glass-card rounded-3xl border border-rose-100 shadow-md p-5 sm:p-6">
+          <div class="flex flex-col sm:flex-row items-center gap-5">
+            <!-- QR Container -->
+            <div class="bg-white p-3 rounded-2xl border-2 border-rose-100 shadow-inner shrink-0 flex flex-col items-center">
+              <div id="qrcode-box" class="w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center"></div>
+              <span class="text-[11px] text-stone-400 mt-1.5 font-medium">掃描直達投票頁</span>
+            </div>
+
+            <!-- QR Info & Controls -->
+            <div class="flex-1 text-center sm:text-left space-y-2.5">
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-semibold">
+                <span>📱</span>
+                <span>現場親友互動投票</span>
+              </div>
+              <h3 class="text-lg sm:text-xl font-serif font-bold text-stone-800">
+                掃描 QR Code 立即參與投票！
+              </h3>
+              <p class="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                請現場親友使用手機相機掃描左側 QR Code，即可直接進入本投票頁面，選出心目中最優秀的前三名伴侶（第一名 3 分、第二名 2 分、第三名 1 分）。
+              </p>
+              <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+                <button onclick="openLargeQrModal()" class="px-3.5 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 shadow-sm">
+                  <span>🔍</span>
+                  <span>放大投影 QR Code</span>
+                </button>
+                <button onclick="copyVoteLink()" class="px-3.5 py-2 rounded-xl bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
+                  <span>🔗</span>
+                  <span>複製投票網址</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Voting Status / Form Card -->
+        <div id="vote-area-container">
+          <!-- Populated dynamically based on whether candidates exist & whether user has voted -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: 最終揭曉與排行榜 (開票區)           -->
+    <!-- ========================================== -->
+    <section id="section-reveal" class="hidden space-y-6">
+      <div class="max-w-4xl mx-auto">
+        <!-- Pre-Reveal Locked View -->
+        <div id="reveal-locked-view" class="hidden">
+          <div class="glass-card rounded-3xl border border-rose-100 shadow-xl p-6 sm:p-10 text-center space-y-6">
+            <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-100 to-rose-100 flex items-center justify-center text-4xl mx-auto animate-float shadow-inner">
+              🎁
+            </div>
+            
+            <div class="space-y-2 max-w-lg mx-auto">
+              <span class="inline-block px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold tracking-wider">
+                LIVE 開票倒數中
+              </span>
+              <h2 class="text-2xl sm:text-3xl font-serif font-bold text-stone-800">
+                投票進行中，敬請期待揭曉！
+              </h2>
+              <p class="text-sm sm:text-base text-stone-600">
+                所有候選人的真實身分與得票積分目前皆嚴格保密中，待主持人宣布開票後將正式揭曉年度優秀伴侶神隊友排行榜！
+              </p>
+            </div>
+
+            <!-- Live Stats Boxes -->
+            <div class="grid grid-cols-2 gap-4 max-w-md mx-auto pt-2">
+              <div class="bg-white rounded-2xl p-4 border border-rose-100 shadow-sm">
+                <div class="text-xs text-stone-500 font-medium mb-1">參賽推薦人數</div>
+                <div class="text-3xl font-bold text-rose-600" id="reveal-stat-candidates">0</div>
+                <div class="text-[11px] text-stone-400 mt-0.5">位優秀伴侶</div>
+              </div>
+              <div class="bg-white rounded-2xl p-4 border border-amber-100 shadow-sm">
+                <div class="text-xs text-stone-500 font-medium mb-1">目前已投出票數</div>
+                <div class="text-3xl font-bold text-amber-600" id="reveal-stat-votes">0</div>
+                <div class="text-[11px] text-stone-400 mt-0.5">張有效選票</div>
+              </div>
+            </div>
+
+            <!-- Host Control Panel -->
+            <div class="max-w-md mx-auto pt-6 border-t border-rose-100/80">
+              <div class="bg-rose-50/70 rounded-2xl p-5 border border-rose-200/70 space-y-3">
+                <div class="flex items-center justify-center gap-1.5 text-sm font-bold text-rose-800">
+                  <span>🔐</span>
+                  <span>主持人開票控制台</span>
+                </div>
+                <p class="text-xs text-stone-600">
+                  輸入主持人密碼即可同步為所有現場賓客揭曉真相
+                </p>
+                <div class="flex gap-2">
+                  <input
+                    type="password"
+                    id="host-password-input"
+                    placeholder="請輸入主持人密碼"
+                    class="flex-1 px-4 py-2.5 rounded-xl bg-white border border-rose-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 outline-none text-center font-mono text-sm"
+                  />
+                  <button
+                    onclick="handleUnlockReveal()"
+                    class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-700 hover:to-amber-600 text-white font-bold text-sm shadow-md transition whitespace-nowrap"
+                  >
+                    揭曉真相與排名
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Post-Reveal Leaderboard View -->
+        <div id="reveal-unlocked-view" class="hidden space-y-6">
+          <!-- Celebration Header -->
+          <div class="glass-card rounded-3xl border border-amber-200 shadow-xl p-6 sm:p-8 text-center relative overflow-hidden">
+            <div class="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-gradient-to-r from-amber-100 to-rose-100 text-rose-800 text-xs font-bold mb-3">
+              <span>🎉</span>
+              <span>真相大白 ‧ 榮耀時刻</span>
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-serif font-bold text-stone-800 mb-2">
+              年度優秀伴侶神隊友最終排行榜
+            </h2>
+            <p class="text-sm text-stone-600">
+              共計 <strong id="unlocked-total-candidates" class="text-rose-600">0</strong> 位候選人參與，累積 <strong id="unlocked-total-votes" class="text-amber-600">0</strong> 位親友熱情投票！
+            </p>
+          </div>
+
+          <!-- Leaderboard List -->
+          <div id="leaderboard-list" class="space-y-4">
+            <!-- Populated dynamically via JS -->
+          </div>
+
+          <!-- Host Management Footer -->
+          <div class="glass-card rounded-2xl border border-stone-200 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="text-xs text-stone-500 text-center sm:text-left">
+              <span class="font-semibold text-stone-700">主持人管理區：</span>可重新隱藏開票畫面，或清空資料開始新一輪活動。
+            </div>
+            <div class="flex items-center gap-2.5">
+              <button onclick="handleRelockReveal()" class="px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition">
+                🙈 重新隱藏結果
+              </button>
+              <button onclick="confirmResetEvent()" class="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition">
+                🗑️ 重置活動資料
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Always-accessible subtle Reset link even before reveal (for rehearsal cleanup) -->
+        <div id="pre-reveal-reset-bar" class="mt-6 text-center">
+          <button onclick="confirmResetEvent()" class="text-xs text-stone-400 hover:text-rose-600 underline underline-offset-4 transition">
+            主持人測試完成？點此重置所有活動資料
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Firebase & Application Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, addDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // ==========================================
+    // 1. Firebase Initialization & Auth (Strict Rules)
+    // ==========================================
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'best-partner-a9a24';
+    const firebaseConfig = {
+      apiKey: "AIzaSyDV_QpzjqHDNmt9AfHyABqZZgxCc7kHAJM",
+      authDomain: "best-partner-a9a24.firebaseapp.com",
+      projectId: "best-partner-a9a24",
+      storageBucket: "best-partner-a9a24.firebasestorage.app",
+      messagingSenderId: "1035605827928",
+      appId: "1:1035605827928:web:1d881d1896fb746489852d"
+    };
+    const HOST_PASSWORD = '04240816';
+    const ADMIN_DELETE_PASSWORD = '04240816';
+
+    let app, auth, db;
+    let currentUser = null;
+    let currentUserId = null;
+
+    // Application State (In-Memory)
+    let state = {
+      isSubmitOnlyMode: false,
+      activeTab: 'nominate',
+      nominations: [], // Raw docs from Firestore
+      enrichedCandidates: [], // Sorted with permanent assigned code (A, B, C...)
+      votes: [], // Raw vote docs from Firestore
+      nextCandidateIndex: 0,
+      isRevealed: false,
+      previousRevealed: false,
+      qrInstance: null,
+      voteUrl: ''
+    };
+
+    // Helper: Convert 0-based index to Excel-style letters (0->A, 25->Z, 26->AA)
+    function indexToLetters(index) {
+      let result = '';
+      let n = index;
+      while (n >= 0) {
+        result = String.fromCharCode((n % 26) + 65) + result;
+        n = Math.floor(n / 26) - 1;
+      }
+      return result;
+    }
+
+    // Helper: Escape HTML to prevent XSS
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Helper: Build URL with custom query params cleanly
+    function buildAppUrl(paramsObj = {}) {
+      try {
+        const url = new URL(window.location.href);
+        url.search = '';
+        Object.entries(paramsObj).forEach(([k, v]) => {
+          if (v !== null && v !== undefined && v !== '') {
+            url.searchParams.set(k, v);
+          }
+        });
+        return url.toString();
+      } catch (e) {
+        const base = window.location.href.split('?')[0];
+        const query = Object.entries(paramsObj)
+          .filter(([, v]) => v !== null && v !== undefined && v !== '')
+          .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+          .join('&');
+        return query ? `${base}?${query}` : base;
+      }
+    }
+
+    // ==========================================
+    // 2. Custom Toast & Modal System (No alert/confirm)
+    // ==========================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const styles = {
+        success: 'bg-emerald-600 text-white border-emerald-500',
+        error: 'bg-rose-600 text-white border-rose-500',
+        info: 'bg-stone-800 text-white border-stone-700',
+        warning: 'bg-amber-500 text-white border-amber-400'
+      };
+      const icons = {
+        success: '✅',
+        error: '⚠️',
+        info: '💡',
+        warning: '🔔'
+      };
+
+      toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-lg border text-sm font-medium transform transition-all duration-300 translate-y-0 opacity-100 ${styles[type] || styles.info}`;
+      toast.innerHTML = `<span>${icons[type] || '💡'}</span><span class="flex-1">${escapeHtml(message)}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    function openModal({ icon = '💌', title = '提示', bodyHtml = '', actions = [] }) {
+      const modal = document.getElementById('custom-modal');
+      document.getElementById('modal-icon').textContent = icon;
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-body').innerHTML = bodyHtml;
+
+      const actionsEl = document.getElementById('modal-actions');
+      actionsEl.innerHTML = '';
+
+      if (actions.length === 0) {
+        actions = [{
+          label: '我知道了',
+          className: 'w-full py-2.5 px-5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-semibold text-sm transition',
+          onClick: closeModal
+        }];
+      }
+
+      actions.forEach(act => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = act.className || 'py-2.5 px-5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-sm transition';
+        btn.textContent = act.label;
+        btn.onclick = () => {
+          if (act.closeOnClick !== false) closeModal();
+          if (act.onClick) act.onClick();
+        };
+        actionsEl.appendChild(btn);
+      });
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('custom-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Close modal when clicking backdrop
+    document.getElementById('custom-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'custom-modal') closeModal();
+    });
+
+    // ==========================================
+    // 3. Submit-Only Mode & Navigation Setup
+    // ==========================================
+    function applyModeRestrictions() {
+      const navEl = document.getElementById('main-nav');
+      const navVote = document.getElementById('nav-vote');
+      const navReveal = document.getElementById('nav-reveal');
+      const shareBar = document.getElementById('organizer-share-bar');
+      const wallCta = document.getElementById('wall-cta');
+
+      if (state.isSubmitOnlyMode) {
+        // Hide QR Vote and Final Reveal tabs completely
+        if (navVote) navVote.classList.add('hidden');
+        if (navReveal) navReveal.classList.add('hidden');
+        if (shareBar) shareBar.classList.add('hidden');
+        if (wallCta) wallCta.classList.add('hidden');
+
+        // Adjust nav grid to 2 columns on mobile
+        if (navEl) {
+          navEl.classList.remove('grid-cols-4');
+          navEl.classList.add('grid-cols-2');
+        }
+      } else {
+        if (navVote) navVote.classList.remove('hidden');
+        if (navReveal) navReveal.classList.remove('hidden');
+        if (shareBar) shareBar.classList.remove('hidden');
+
+        if (navEl) {
+          navEl.classList.remove('grid-cols-2');
+          navEl.classList.add('grid-cols-4');
+        }
+      }
+    }
+
+    window.switchTab = function(tabName) {
+      // Block access to vote/reveal in submit-only mode
+      if (state.isSubmitOnlyMode && (tabName === 'vote' || tabName === 'reveal')) {
+        tabName = 'nominate';
+      }
+
+      const validTabs = state.isSubmitOnlyMode
+        ? ['nominate', 'wall']
+        : ['nominate', 'wall', 'vote', 'reveal'];
+
+      if (!validTabs.includes(tabName)) tabName = 'nominate';
+      state.activeTab = tabName;
+
+      // Toggle sections
+      ['nominate', 'wall', 'vote', 'reveal'].forEach(t => {
+        const sec = document.getElementById(`section-${t}`);
+        const btn = document.getElementById(`nav-${t}`);
+        if (sec) {
+          if (t === tabName) {
+            sec.classList.remove('hidden');
+          } else {
+            sec.classList.add('hidden');
+          }
+        }
+        if (btn) {
+          if (t === tabName) {
+            btn.className = 'nav-btn tab-transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-rose-600 shadow-sm border border-rose-100';
+          } else {
+            const hiddenClass = (state.isSubmitOnlyMode && (t === 'vote' || t === 'reveal')) ? 'hidden' : '';
+            btn.className = `nav-btn tab-transition flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium text-stone-600 hover:text-rose-600 hover:bg-white/60 ${hiddenClass}`;
+          }
+        }
+      });
+
+      // Scroll smoothly to top on tab switch
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Ensure QR code renders properly when Vote tab becomes visible
+      if (tabName === 'vote' && !state.isSubmitOnlyMode) {
+        initOrRefreshQrCode();
+      }
+    };
+
+    // ==========================================
+    // 4. Data Synchronization & Computation
+    // ==========================================
+    function buildSortedCandidates(rawDocs) {
+      const sorted = [...rawDocs].sort((a, b) => {
+        const idxA = typeof a.candidateIndex === 'number' ? a.candidateIndex : Number.MAX_SAFE_INTEGER;
+        const idxB = typeof b.candidateIndex === 'number' ? b.candidateIndex : Number.MAX_SAFE_INTEGER;
+        if (idxA !== idxB) return idxA - idxB;
+
+        const timeDiff = (a.createdAt || 0) - (b.createdAt || 0);
+        if (timeDiff !== 0) return timeDiff;
+        return String(a.id).localeCompare(String(b.id));
+      });
+
+      return sorted.map((item, idx) => {
+        const assignedIndex = typeof item.candidateIndex === 'number' ? item.candidateIndex : idx;
+        const letter = item.candidateLetter || indexToLetters(assignedIndex);
+        return {
+          ...item,
+          index: assignedIndex,
+          letter,
+          codeName: `候選人 ${letter}`,
+          fullAnonymousLabel: `候選人 ${letter}`,
+          shortRoleLabel: `神隊友 ${letter}`
+        };
+      });
+    }
+
+    function recomputeAndRenderAll() {
+      // Preserve permanent anonymous codes assigned at submission time
+      state.enrichedCandidates = buildSortedCandidates(state.nominations);
+
+      // Update wall badge count
+      const badgeEl = document.getElementById('badge-wall-count');
+      if (badgeEl) {
+        badgeEl.textContent = state.enrichedCandidates.length;
+      }
+
+      renderWall();
+      if (!state.isSubmitOnlyMode) {
+        renderVoteSection();
+        renderRevealSection();
+      }
+    }
+
+    // ==========================================
+    // 5. Render TAB 2: Anonymous Wall
+    // ==========================================
+    function renderWall() {
+      const grid = document.getElementById('wall-grid');
+      const emptyEl = document.getElementById('wall-empty');
+      const ctaEl = document.getElementById('wall-cta');
+      const totalNumEl = document.getElementById('wall-total-num');
+
+      totalNumEl.textContent = state.enrichedCandidates.length;
+
+      if (state.enrichedCandidates.length === 0) {
+        grid.innerHTML = '';
+        emptyEl.classList.remove('hidden');
+        ctaEl.classList.add('hidden');
+        return;
+      }
+
+      emptyEl.classList.add('hidden');
+      if (!state.isSubmitOnlyMode) {
+        ctaEl.classList.remove('hidden');
+      } else {
+        ctaEl.classList.add('hidden');
+      }
+
+      grid.innerHTML = state.enrichedCandidates.map(c => {
+        const adminDeleteBtnHtml = state.isSubmitOnlyMode
+          ? ''
+          : `
+            <button
+              type="button"
+              onclick="confirmDeleteNomination('${escapeHtml(c.id)}')"
+              title="主辦單位刪除投稿"
+              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-stone-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+              <span>刪除</span>
+            </button>
+          `;
+
+        return `
+          <article class="glass-card rounded-3xl p-6 border border-rose-100/90 shadow-md hover:shadow-lg transition-all flex flex-col justify-between gap-4">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-stone-100">
+                <div class="flex items-center gap-3">
+                  <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-rose-400 to-amber-500 text-white font-serif font-bold text-lg flex items-center justify-center shadow-sm">
+                    ${escapeHtml(c.letter)}
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-lg text-stone-800">${escapeHtml(c.codeName)}</h3>
+                    <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full border bg-rose-50 text-rose-700 border-rose-200">
+                      <span>💞</span>
+                      <span>優秀伴侶神隊友</span>
+                    </span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs text-stone-400 bg-stone-50 px-2.5 py-1 rounded-full border border-stone-100">
+                    🔒 身份保密中
+                  </span>
+                  ${adminDeleteBtnHtml}
+                </div>
+              </div>
+              <p class="text-stone-700 text-sm sm:text-base leading-relaxed whitespace-pre-line">
+                ${escapeHtml(c.story)}
+              </p>
+            </div>
+            <div class="pt-2 flex items-center justify-between text-xs text-stone-400">
+              <span>年度感恩事蹟 #${c.index + 1}</span>
+              <span class="text-rose-400 font-medium">♥ 猜猜這是誰的另一半？</span>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // ==========================================
+    // 6. Render TAB 3: QR Code & Voting Section
+    // ==========================================
+    function initOrRefreshQrCode() {
+      const qrBox = document.getElementById('qrcode-box');
+      if (!qrBox || typeof QRCode === 'undefined') return;
+
+      const voteUrl = buildAppUrl({ tab: 'vote' });
+      if (state.voteUrl === voteUrl && qrBox.innerHTML.trim() !== '') return;
+
+      state.voteUrl = voteUrl;
+      qrBox.innerHTML = '';
+      state.qrInstance = new QRCode(qrBox, {
+        text: voteUrl,
+        width: 112,
+        height: 112,
+        colorDark: '#881337',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+
+    window.openLargeQrModal = function() {
+      const voteUrl = buildAppUrl({ tab: 'vote' });
+      openModal({
+        icon: '📱',
+        title: '掃描 QR Code 進入投票區',
+        bodyHtml: `
+          <p class="text-xs sm:text-sm text-stone-500 mb-4">請現場賓客開啟手機相機掃描下方條碼，即可投票選出心目中的前三名！</p>
+          <div class="bg-white p-4 rounded-2xl border-2 border-rose-100 inline-flex items-center justify-center mx-auto shadow-inner">
+            <div id="modal-large-qr"></div>
+          </div>
+          <p class="text-[11px] text-stone-400 mt-3 break-all">${escapeHtml(voteUrl)}</p>
+        `,
+        actions: [
+          {
+            label: '複製投票連結',
+            className: 'px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-semibold text-sm transition',
+            closeOnClick: false,
+            onClick: () => copyVoteLink()
+          },
+          {
+            label: '關閉視窗',
+            className: 'px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-semibold text-sm transition'
+          }
+        ]
+      });
+
+      setTimeout(() => {
+        const largeQrEl = document.getElementById('modal-large-qr');
+        if (largeQrEl && typeof QRCode !== 'undefined') {
+          largeQrEl.innerHTML = '';
+          new QRCode(largeQrEl, {
+            text: voteUrl,
+            width: 220,
+            height: 220,
+            colorDark: '#881337',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        }
+      }, 30);
+    };
+
+    function copyTextToClipboard(text, successMsg) {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      tempInput.style.position = 'fixed';
+      tempInput.style.opacity = '0';
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg, 'success');
+      } catch (err) {
+        showToast('複製失敗，請手動複製網址列', 'error');
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    window.copyVoteLink = function() {
+      const voteUrl = buildAppUrl({ tab: 'vote' });
+      copyTextToClipboard(voteUrl, '已複製「QR 投票區」專屬連結！');
+    };
+
+    window.copySubmitOnlyLink = function() {
+      const submitUrl = buildAppUrl({ mode: 'submit' });
+      copyTextToClipboard(submitUrl, '已複製「純投稿專用」連結！親友開啟時只會看到填寫推薦與匿名牆。');
+    };
+
+    function renderVoteSection() {
+      const container = document.getElementById('vote-area-container');
+      if (!container) return;
+
+      const candidates = state.enrichedCandidates;
+      const myVote = currentUserId ? state.votes.find(v => v.id === currentUserId) : null;
+
+      // Case 1: Not enough candidates yet
+      if (candidates.length < 3) {
+        container.innerHTML = `
+          <div class="glass-card rounded-3xl border border-amber-200 p-8 text-center space-y-4">
+            <div class="text-4xl">⏳</div>
+            <h3 class="text-xl font-serif font-bold text-stone-800">
+              候選人募集準備中（目前 ${candidates.length} / 3 位）
+            </h3>
+            <p class="text-sm text-stone-600 max-w-md mx-auto leading-relaxed">
+              因為投票需要選出「第一名、第二名、第三名」，至少需要 <strong>3 位</strong>候選人投稿後才會開放投票表單喔！
+            </p>
+            <button onclick="switchTab('nominate')" class="px-6 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-semibold text-sm transition shadow-sm">
+              立即前往新增推薦
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      // Case 2: User has already voted
+      if (myVote) {
+        const c1 = candidates.find(c => c.id === myVote.firstId);
+        const c2 = candidates.find(c => c.id === myVote.secondId);
+        const c3 = candidates.find(c => c.id === myVote.thirdId);
+
+        container.innerHTML = `
+          <div class="glass-card rounded-3xl border border-emerald-200 shadow-lg p-6 sm:p-8 text-center space-y-6">
+            <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto">
+              🎉
+            </div>
+            <div>
+              <h3 class="text-2xl font-serif font-bold text-stone-800 mb-1">
+                感謝您的神聖一票！
+              </h3>
+              <p class="text-sm text-stone-600">
+                您的前三名積分選票已成功計入系統，請等待主持人於「最終揭曉」分頁公布結果！
+              </p>
+            </div>
+
+            <div class="max-w-md mx-auto bg-white rounded-2xl p-4 border border-stone-100 shadow-sm space-y-3 text-left">
+              <div class="text-xs font-bold text-stone-400 uppercase tracking-wider text-center pb-1 border-b border-stone-100">
+                您的投票明細
+              </div>
+              <div class="flex items-center justify-between py-1">
+                <span class="inline-flex items-center gap-1.5 font-bold text-amber-600 text-sm">🥇 第一名 (3分)</span>
+                <span class="font-semibold text-stone-800 text-sm">${c1 ? escapeHtml(c1.fullAnonymousLabel) : '已刪除候選人'}</span>
+              </div>
+              <div class="flex items-center justify-between py-1">
+                <span class="inline-flex items-center gap-1.5 font-bold text-stone-500 text-sm">🥈 第二名 (2分)</span>
+                <span class="font-semibold text-stone-800 text-sm">${c2 ? escapeHtml(c2.fullAnonymousLabel) : '已刪除候選人'}</span>
+              </div>
+              <div class="flex items-center justify-between py-1">
+                <span class="inline-flex items-center gap-1.5 font-bold text-amber-800 text-sm">🥉 第三名 (1分)</span>
+                <span class="font-semibold text-stone-800 text-sm">${c3 ? escapeHtml(c3.fullAnonymousLabel) : '已刪除候選人'}</span>
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <button onclick="switchTab('reveal')" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-amber-500 text-white font-bold text-sm shadow-md hover:shadow-lg transition">
+                👑 前往查看開票進度
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Case 3: Active Voting Form
+      const prev1 = document.getElementById('select-rank-1')?.value || '';
+      const prev2 = document.getElementById('select-rank-2')?.value || '';
+      const prev3 = document.getElementById('select-rank-3')?.value || '';
+
+      const optionsHtml = candidates.map(c => {
+        const snippet = c.story.length > 26 ? c.story.slice(0, 26) + '...' : c.story;
+        return `<option value="${escapeHtml(c.id)}">${escapeHtml(c.fullAnonymousLabel)} — ${escapeHtml(snippet)}</option>`;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="glass-card rounded-3xl border border-rose-100 shadow-xl p-6 sm:p-8">
+          <div class="mb-6">
+            <h3 class="text-xl sm:text-2xl font-serif font-bold text-stone-800 mb-1">
+              選出你心中的前三名！
+            </h3>
+            <p class="text-xs sm:text-sm text-stone-500">
+              每位參與者限投一次，請分別選出三個不同名次的候選人（若忘記事蹟內容，可隨時切換至「匿名牆」回顧）。
+            </p>
+          </div>
+
+          <form id="vote-form" class="space-y-5">
+            <!-- 1st Place (3 pts) -->
+            <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-50/90 to-yellow-50/70 border border-amber-200 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <label for="select-rank-1" class="font-bold text-amber-900 flex items-center gap-2 text-base">
+                  <span class="text-xl">🥇</span>
+                  <span>第一名推薦</span>
+                </label>
+                <span class="px-2.5 py-0.5 rounded-full bg-amber-500 text-white text-xs font-bold shadow-sm">
+                  + 3 分
+                </span>
+              </div>
+              <select id="select-rank-1" required onchange="handleVoteSelectChange()" class="w-full px-4 py-3 rounded-xl bg-white border border-amber-300 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none text-stone-800 text-sm font-medium">
+                <option value="">-- 請選擇第一名候選人 --</option>
+                ${optionsHtml}
+              </select>
+              <div id="preview-rank-1" class="hidden text-xs text-stone-600 bg-white/80 p-3 rounded-xl border border-amber-100 leading-relaxed"></div>
+            </div>
+
+            <!-- 2nd Place (2 pts) -->
+            <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-stone-50 to-slate-50 border border-stone-200 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <label for="select-rank-2" class="font-bold text-stone-800 flex items-center gap-2 text-base">
+                  <span class="text-xl">🥈</span>
+                  <span>第二名推薦</span>
+                </label>
+                <span class="px-2.5 py-0.5 rounded-full bg-stone-500 text-white text-xs font-bold shadow-sm">
+                  + 2 分
+                </span>
+              </div>
+              <select id="select-rank-2" required onchange="handleVoteSelectChange()" class="w-full px-4 py-3 rounded-xl bg-white border border-stone-300 focus:border-rose-400 focus:ring-4 focus:ring-rose-100 outline-none text-stone-800 text-sm font-medium">
+                <option value="">-- 請選擇第二名候選人 --</option>
+                ${optionsHtml}
+              </select>
+              <div id="preview-rank-2" class="hidden text-xs text-stone-600 bg-white/80 p-3 rounded-xl border border-stone-200 leading-relaxed"></div>
+            </div>
+
+            <!-- 3rd Place (1 pt) -->
+            <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-orange-50/70 to-rose-50/60 border border-orange-200 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <label for="select-rank-3" class="font-bold text-orange-950 flex items-center gap-2 text-base">
+                  <span class="text-xl">🥉</span>
+                  <span>第三名推薦</span>
+                </label>
+                <span class="px-2.5 py-0.5 rounded-full bg-orange-600 text-white text-xs font-bold shadow-sm">
+                  + 1 分
+                </span>
+              </div>
+              <select id="select-rank-3" required onchange="handleVoteSelectChange()" class="w-full px-4 py-3 rounded-xl bg-white border border-orange-300 focus:border-rose-400 focus:ring-4 focus:ring-rose-100 outline-none text-stone-800 text-sm font-medium">
+                <option value="">-- 請選擇第三名候選人 --</option>
+                ${optionsHtml}
+              </select>
+              <div id="preview-rank-3" class="hidden text-xs text-stone-600 bg-white/80 p-3 rounded-xl border border-orange-100 leading-relaxed"></div>
+            </div>
+
+            <button
+              type="submit"
+              id="btn-submit-vote"
+              class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-rose-500 via-rose-600 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white font-bold text-base sm:text-lg shadow-lg shadow-rose-200 hover:shadow-xl transition-all flex items-center justify-center gap-2"
+            >
+              <span>🗳️</span>
+              <span>確認送出我的前三名選票</span>
+            </button>
+          </form>
+        </div>
+      `;
+
+      // Restore previous selections if re-rendered due to realtime updates
+      if (prev1) document.getElementById('select-rank-1').value = prev1;
+      if (prev2) document.getElementById('select-rank-2').value = prev2;
+      if (prev3) document.getElementById('select-rank-3').value = prev3;
+      window.handleVoteSelectChange();
+
+      // Bind vote submit handler
+      document.getElementById('vote-form').addEventListener('submit', handleVoteSubmit);
+    }
+
+    // Disable already chosen candidates in other dropdowns & show story preview
+    window.handleVoteSelectChange = function() {
+      const s1 = document.getElementById('select-rank-1');
+      const s2 = document.getElementById('select-rank-2');
+      const s3 = document.getElementById('select-rank-3');
+      if (!s1 || !s2 || !s3) return;
+
+      const vals = [s1.value, s2.value, s3.value];
+      const selects = [s1, s2, s3];
+
+      selects.forEach((sel, idx) => {
+        const otherVals = vals.filter((_, i) => i !== idx && _ !== '');
+        Array.from(sel.options).forEach(opt => {
+          if (!opt.value) return;
+          opt.disabled = otherVals.includes(opt.value);
+        });
+
+        const previewEl = document.getElementById(`preview-rank-${idx + 1}`);
+        const chosen = state.enrichedCandidates.find(c => c.id === sel.value);
+        if (previewEl) {
+          if (chosen) {
+            previewEl.textContent = `事蹟摘要：「${chosen.story}」`;
+            previewEl.classList.remove('hidden');
+          } else {
+            previewEl.classList.add('hidden');
+          }
+        }
+      });
+    };
+
+    async function handleVoteSubmit(e) {
+      e.preventDefault();
+      if (!currentUserId) {
+        showToast('系統尚未完成連線，請稍候再試', 'error');
+        return;
+      }
+
+      const firstId = document.getElementById('select-rank-1').value;
+      const secondId = document.getElementById('select-rank-2').value;
+      const thirdId = document.getElementById('select-rank-3').value;
+
+      if (!firstId || !secondId || !thirdId) {
+        showToast('請完整選出第一名、第二名與第三名！', 'warning');
+        return;
+      }
+
+      if (new Set([firstId, secondId, thirdId]).size !== 3) {
+        showToast('前三名必須選擇三位不同的候選人喔！', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btn-submit-vote');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span><span>正在送出選票...</span>';
+
+      try {
+        const voteRef = doc(db, 'artifacts', appId, 'public', 'data', 'votes', currentUserId);
+        await setDoc(voteRef, {
+          voterId: currentUserId,
+          firstId,
+          secondId,
+          thirdId,
+          createdAt: Date.now()
+        });
+        showToast('投票成功！感謝您的參與 🎉', 'success');
+      } catch (err) {
+        console.error('Vote submission error:', err);
+        showToast('投票送出失敗，請檢查網路連線後重試', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<span>🗳️</span><span>確認送出我的前三名選票</span>';
+      }
+    }
+
+    // ==========================================
+    // 7. Render TAB 4: Final Reveal & Leaderboard
+    // ==========================================
+    function renderRevealSection() {
+      const lockedView = document.getElementById('reveal-locked-view');
+      const unlockedView = document.getElementById('reveal-unlocked-view');
+      const preResetBar = document.getElementById('pre-reveal-reset-bar');
+
+      if (!state.isRevealed) {
+        lockedView.classList.remove('hidden');
+        unlockedView.classList.add('hidden');
+        preResetBar.classList.remove('hidden');
+
+        document.getElementById('reveal-stat-candidates').textContent = state.enrichedCandidates.length;
+        document.getElementById('reveal-stat-votes').textContent = state.votes.length;
+        return;
+      }
+
+      // Revealed!
+      lockedView.classList.add('hidden');
+      unlockedView.classList.remove('hidden');
+      preResetBar.classList.add('hidden');
+
+      document.getElementById('unlocked-total-candidates').textContent = state.enrichedCandidates.length;
+      document.getElementById('unlocked-total-votes').textContent = state.votes.length;
+
+      // Calculate scores
+      const scoreMap = {};
+      state.enrichedCandidates.forEach(c => {
+        scoreMap[c.id] = {
+          totalScore: 0,
+          firstCount: 0,
+          secondCount: 0,
+          thirdCount: 0
+        };
+      });
+
+      state.votes.forEach(v => {
+        if (scoreMap[v.firstId]) {
+          scoreMap[v.firstId].totalScore += 3;
+          scoreMap[v.firstId].firstCount += 1;
+        }
+        if (scoreMap[v.secondId]) {
+          scoreMap[v.secondId].totalScore += 2;
+          scoreMap[v.secondId].secondCount += 1;
+        }
+        if (scoreMap[v.thirdId]) {
+          scoreMap[v.thirdId].totalScore += 1;
+          scoreMap[v.thirdId].thirdCount += 1;
+        }
+      });
+
+      const rankedList = state.enrichedCandidates
+        .map(c => ({
+          ...c,
+          stats: scoreMap[c.id]
+        }))
+        .sort((a, b) => {
+          if (b.stats.totalScore !== a.stats.totalScore) {
+            return b.stats.totalScore - a.stats.totalScore;
+          }
+          if (b.stats.firstCount !== a.stats.firstCount) {
+            return b.stats.firstCount - a.stats.firstCount;
+          }
+          if (b.stats.secondCount !== a.stats.secondCount) {
+            return b.stats.secondCount - a.stats.secondCount;
+          }
+          return a.index - b.index;
+        });
+
+      const listEl = document.getElementById('leaderboard-list');
+      if (rankedList.length === 0) {
+        listEl.innerHTML = `
+          <div class="glass-card rounded-3xl p-8 text-center text-stone-500 border border-rose-100">
+            目前尚無任何推薦資料可排名。
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = rankedList.map((item, rankIdx) => {
+        const rank = rankIdx + 1;
+        let cardBorder = 'border-rose-100 bg-white/90';
+        let medalHtml = `<div class="w-11 h-11 rounded-2xl bg-stone-100 text-stone-600 font-bold text-lg flex items-center justify-center shrink-0">#${rank}</div>`;
+
+        if (rank === 1) {
+          cardBorder = 'border-amber-300 bg-gradient-to-br from-amber-50/95 via-white to-rose-50/70 shadow-lg shadow-amber-100/70';
+          medalHtml = `<div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 text-white text-2xl flex items-center justify-center shadow-md shrink-0">🥇</div>`;
+        } else if (rank === 2) {
+          cardBorder = 'border-slate-300 bg-gradient-to-br from-slate-50/90 via-white to-stone-50 shadow-md';
+          medalHtml = `<div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-400 to-slate-500 text-white text-2xl flex items-center justify-center shadow-md shrink-0">🥈</div>`;
+        } else if (rank === 3) {
+          cardBorder = 'border-orange-200 bg-gradient-to-br from-orange-50/80 via-white to-amber-50/50 shadow-md';
+          medalHtml = `<div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-600 to-orange-700 text-white text-2xl flex items-center justify-center shadow-md shrink-0">🥉</div>`;
+        }
+
+        const roleBadge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">💞 優秀伴侶神隊友</span>`;
+
+        const recommenderText = item.recommender
+          ? `推薦人：${escapeHtml(item.recommender)}`
+          : '匿名深情推薦';
+
+        return `
+          <div class="rounded-3xl border-2 ${cardBorder} p-5 sm:p-6 transition-all">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-200/60">
+              <div class="flex items-center gap-3.5">
+                ${medalHtml}
+                <div>
+                  <div class="flex flex-wrap items-center gap-2 mb-1">
+                    <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-stone-800 text-white">
+                      原代號：${escapeHtml(item.codeName)}
+                    </span>
+                    ${roleBadge}
+                  </div>
+                  <h3 class="text-xl sm:text-2xl font-serif font-bold text-stone-900">
+                    ${escapeHtml(item.realName)}
+                  </h3>
+                  <p class="text-xs text-stone-500 mt-0.5">${recommenderText}</p>
+                </div>
+              </div>
+
+              <!-- Score Pill -->
+              <div class="flex sm:flex-col items-center sm:items-end justify-between bg-white/80 sm:bg-transparent px-4 py-2.5 sm:p-0 rounded-2xl border sm:border-0 border-stone-100">
+                <div class="flex items-baseline gap-1">
+                  <span class="text-3xl font-extrabold text-rose-600">${item.stats.totalScore}</span>
+                  <span class="text-xs font-bold text-stone-500">總分</span>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] text-stone-500 mt-0.5">
+                  <span title="第一名票數">🥇×${item.stats.firstCount}</span>
+                  <span title="第二名票數">🥈×${item.stats.secondCount}</span>
+                  <span title="第三名票數">🥉×${item.stats.thirdCount}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-3.5 text-sm sm:text-base text-stone-700 leading-relaxed whitespace-pre-line">
+              ${escapeHtml(item.story)}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function triggerCelebrationConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 90,
+          spread: 75,
+          origin: { y: 0.6 }
+        });
+        setTimeout(() => {
+          confetti({
+            particleCount: 60,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 }
+          });
+          confetti({
+            particleCount: 60,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 }
+          });
+        }, 350);
+      }
+    }
+
+    // Host Unlock Reveal
+    window.handleUnlockReveal = async function() {
+      const pwdInput = document.getElementById('host-password-input');
+      const pwd = pwdInput ? pwdInput.value.trim() : '';
+
+      if (pwd !== HOST_PASSWORD) {
+        showToast('主持人密碼錯誤！', 'error');
+        if (pwdInput) pwdInput.focus();
+        return;
+      }
+
+      if (!currentUser) return;
+
+      try {
+        const settingRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'eventState');
+        await setDoc(settingRef, {
+          isRevealed: true,
+          revealedAt: Date.now()
+        }, { merge: true });
+        pwdInput.value = '';
+        showToast('已同步揭曉最終排行榜！🎉', 'success');
+      } catch (err) {
+        console.error('Unlock error:', err);
+        showToast('揭曉設定失敗，請重試', 'error');
+      }
+    };
+
+    // Host Re-lock Reveal
+    window.handleRelockReveal = async function() {
+      if (!currentUser) return;
+      try {
+        const settingRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'eventState');
+        await setDoc(settingRef, {
+          isRevealed: false,
+          updatedAt: Date.now()
+        }, { merge: true });
+        state.previousRevealed = false;
+        showToast('已重新隱藏開票結果', 'info');
+      } catch (err) {
+        console.error('Relock error:', err);
+        showToast('操作失敗', 'error');
+      }
+    };
+
+    // Host Delete Single Nomination on Wall (Password: 04240816 required every time)
+    window.confirmDeleteNomination = function(nomId) {
+      if (state.isSubmitOnlyMode) return;
+      const target = state.enrichedCandidates.find(c => c.id === nomId);
+      if (!target) return;
+
+      const storySnippet = target.story.length > 60
+        ? `${target.story.slice(0, 60)}...`
+        : target.story;
+
+      const passwordSectionHtml = `
+        <div class="text-left bg-rose-50 p-3.5 rounded-xl border border-rose-200 space-y-1.5">
+          <label for="admin-delete-pwd" class="block text-xs font-bold text-rose-800">
+            請輸入主辦單位刪除密碼：
+          </label>
+          <input
+            type="password"
+            id="admin-delete-pwd"
+            placeholder="請輸入密碼"
+            class="w-full px-3 py-2 rounded-lg bg-white border border-rose-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 text-center font-mono text-sm outline-none"
+          />
+          <p id="admin-delete-pwd-error" class="hidden text-xs font-semibold text-rose-600 text-center pt-1">
+            ⚠️ 密碼錯誤，無法刪除此筆推薦資料！
+          </p>
+        </div>
+      `;
+
+      openModal({
+        icon: '🗑️',
+        title: '主辦單位刪除確認',
+        bodyHtml: `
+          <p class="mb-3 text-sm text-stone-600">
+            確定要刪除 <strong class="text-rose-700">${escapeHtml(target.fullAnonymousLabel)}</strong> 嗎？刪除後其他候選人原本的匿名編號將會保留不變。
+          </p>
+          <div class="text-left bg-stone-50 p-3 rounded-xl border border-stone-200 text-xs text-stone-600 mb-3 leading-relaxed">
+            <span class="font-bold text-stone-700">事蹟預覽：</span>「${escapeHtml(storySnippet)}」
+          </div>
+          ${passwordSectionHtml}
+        `,
+        actions: [
+          {
+            label: '取消',
+            className: 'px-4 py-2.5 rounded-xl bg-stone-100 text-stone-700 font-semibold text-sm hover:bg-stone-200 transition'
+          },
+          {
+            label: '確認刪除',
+            className: 'px-5 py-2.5 rounded-xl bg-rose-600 text-white font-semibold text-sm hover:bg-rose-700 transition',
+            closeOnClick: false,
+            onClick: async () => {
+              const pwdInput = document.getElementById('admin-delete-pwd');
+              const errEl = document.getElementById('admin-delete-pwd-error');
+              const enteredPwd = pwdInput ? pwdInput.value.trim() : '';
+
+              if (enteredPwd !== ADMIN_DELETE_PASSWORD) {
+                if (errEl) errEl.classList.remove('hidden');
+                if (pwdInput) {
+                  pwdInput.classList.add('border-rose-500', 'ring-2', 'ring-rose-200');
+                  pwdInput.focus();
+                }
+                return;
+              }
+
+              closeModal();
+              await executeDeleteSingleNomination(nomId, target.codeName);
+            }
+          }
+        ]
+      });
+
+      setTimeout(() => {
+        const pwdInput = document.getElementById('admin-delete-pwd');
+        if (pwdInput) {
+          pwdInput.focus();
+          pwdInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              const actionsContainer = document.getElementById('modal-actions');
+              const confirmBtn = actionsContainer?.querySelectorAll('button')[1];
+              if (confirmBtn) confirmBtn.click();
+            }
+          });
+        }
+      }, 50);
+    };
+
+    async function executeDeleteSingleNomination(nomId, codeName) {
+      if (!currentUser) return;
+      try {
+        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'nominations', nomId));
+        showToast(`已成功刪除「${codeName}」，其餘候選人代號已完整保留！`, 'success');
+      } catch (err) {
+        console.error('Delete single nomination error:', err);
+        showToast('刪除失敗，請檢查網路連線後重試', 'error');
+      }
+    }
+
+    // Host Reset Event Data (With Custom Modal Confirmation)
+    window.confirmResetEvent = function() {
+      openModal({
+        icon: '⚠️',
+        title: '確定要重置所有活動資料嗎？',
+        bodyHtml: `
+          <p class="mb-3">此動作將會清空目前所有的<strong>推薦事蹟</strong>與<strong>投票紀錄</strong>，並將開票狀態恢復為未揭曉。</p>
+          <div class="text-left bg-rose-50 p-3 rounded-xl border border-rose-200">
+            <label class="block text-xs font-bold text-rose-800 mb-1">請輸入主持人密碼確認：</label>
+            <input type="password" id="reset-confirm-pwd" placeholder="請輸入密碼" class="w-full px-3 py-1.5 rounded-lg bg-white border border-rose-200 text-center font-mono text-sm outline-none" />
+          </div>
+        `,
+        actions: [
+          {
+            label: '取消',
+            className: 'px-4 py-2.5 rounded-xl bg-stone-100 text-stone-700 font-semibold text-sm hover:bg-stone-200 transition'
+          },
+          {
+            label: '確認清空重置',
+            className: 'px-5 py-2.5 rounded-xl bg-rose-600 text-white font-semibold text-sm hover:bg-rose-700 transition',
+            closeOnClick: false,
+            onClick: async () => {
+              const pwd = document.getElementById('reset-confirm-pwd')?.value.trim();
+              if (pwd !== HOST_PASSWORD) {
+                showToast('密碼錯誤，無法重置', 'error');
+                return;
+              }
+              closeModal();
+              await executeFullReset();
+            }
+          }
+        ]
+      });
+    };
+
+    async function executeFullReset() {
+      if (!currentUser) return;
+      showToast('正在清空資料中...', 'info');
+      try {
+        const delNoms = state.nominations.map(n =>
+          deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'nominations', n.id))
+        );
+        const delVotes = state.votes.map(v =>
+          deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'votes', v.id))
+        );
+        await Promise.all([...delNoms, ...delVotes]);
+
+        const settingRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'eventState');
+        await setDoc(settingRef, { isRevealed: false, nextCandidateIndex: 0, resetAt: Date.now() });
+        state.previousRevealed = false;
+        state.nextCandidateIndex = 0;
+
+        showToast('活動資料已全部清空重置！', 'success');
+        switchTab('nominate');
+      } catch (err) {
+        console.error('Reset error:', err);
+        showToast('重置過程發生錯誤，請重試', 'error');
+      }
+    }
+
+    // ==========================================
+    // 8. Nomination Form Submission (TAB 1)
+    // ==========================================
+    const storyTextarea = document.getElementById('input-story');
+    const storyCharCount = document.getElementById('story-char-count');
+    storyTextarea.addEventListener('input', () => {
+      storyCharCount.textContent = `${storyTextarea.value.length} / 500`;
+    });
+
+    document.getElementById('nomination-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser) {
+        showToast('資料庫尚未就緒，請稍候再試', 'error');
+        return;
+      }
+
+      const role = '優秀伴侶神隊友';
+      const realName = document.getElementById('input-realname').value.trim();
+      const recommender = document.getElementById('input-recommender').value.trim();
+      const story = document.getElementById('input-story').value.trim();
+
+      if (!realName || !story) {
+        showToast('請填寫被推薦人姓名與感人事蹟！', 'warning');
+        return;
+      }
+
+      const submitBtn = document.getElementById('btn-submit-nomination');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>⏳</span><span>正在送出推薦...</span>';
+
+      try {
+        const createdAt = Date.now();
+        const maxExistingIndex = state.enrichedCandidates.reduce(
+          (maxVal, item) => Math.max(maxVal, item.index),
+          -1
+        );
+        const assignedIndex = Math.max(maxExistingIndex + 1, state.nextCandidateIndex || 0);
+        const assignedLetter = indexToLetters(assignedIndex);
+
+        const newPayload = {
+          role,
+          realName,
+          recommender,
+          story,
+          candidateIndex: assignedIndex,
+          candidateLetter: assignedLetter,
+          authorId: currentUserId,
+          createdAt
+        };
+
+        const nomsCol = collection(db, 'artifacts', appId, 'public', 'data', 'nominations');
+        await addDoc(nomsCol, newPayload);
+
+        // Advance monotonic counter so deleted letters are never reused
+        const settingRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'eventState');
+        await setDoc(settingRef, { nextCandidateIndex: assignedIndex + 1 }, { merge: true });
+
+        // Clear form
+        document.getElementById('nomination-form').reset();
+        storyCharCount.textContent = '0 / 500';
+
+        // Show confirmation modal with assigned anonymous code
+        openModal({
+          icon: '🎉',
+          title: '推薦事蹟送出成功！',
+          bodyHtml: `
+            <p class="mb-3">您的推薦已成功登上匿名展示牆，真實姓名目前處於<strong class="text-amber-700">嚴格保密狀態</strong>。</p>
+            <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-center">
+              <div class="text-xs text-rose-600 font-semibold mb-1">本次獲得的匿名參賽代號為</div>
+              <div class="text-2xl font-serif font-bold text-rose-700">候選人 ${assignedLetter}</div>
+            </div>
+          `,
+          actions: [
+            {
+              label: '繼續推薦下一位',
+              className: 'px-4 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-sm transition'
+            },
+            {
+              label: '前往匿名牆查看 ➔',
+              className: 'px-5 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-semibold text-sm transition shadow-sm',
+              onClick: () => switchTab('wall')
+            }
+          ]
+        });
+      } catch (err) {
+        console.error('Nomination submit error:', err);
+        showToast('送出失敗，請檢查網路連線後重試', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>💌</span><span>送出感恩推薦，取得匿名代號</span>';
+      }
+    });
+
+    // ==========================================
+    // 9. Bootstrap Firebase & Realtime Listeners
+    // ==========================================
+    async function bootstrapApp() {
+      // Check URL params before rendering
+      const urlParams = new URLSearchParams(window.location.search);
+      const modeParam = urlParams.get('mode');
+      const initialTab = urlParams.get('tab');
+
+      if (modeParam === 'submit') {
+        state.isSubmitOnlyMode = true;
+      }
+
+      applyModeRestrictions();
+
+      try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        // Rule 3: Auth BEFORE Firestore queries
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+
+        currentUser = auth.currentUser;
+        currentUserId = currentUser ? currentUser.uid : null;
+
+        // Update mobile status badge
+        const mobileBadge = document.getElementById('connection-status-mobile');
+        if (mobileBadge) {
+          mobileBadge.className = 'md:hidden flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
+          mobileBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>即時連線</span>';
+        }
+
+        // Listener 1: Nominations (Rule 1 & Rule 2 - no orderBy in query, sort in JS)
+        const nomsRef = collection(db, 'artifacts', appId, 'public', 'data', 'nominations');
+        onSnapshot(nomsRef, (snapshot) => {
+          state.nominations = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+          recomputeAndRenderAll();
+        }, (err) => {
+          console.error('Nominations snapshot error:', err);
+        });
+
+        // Listener 2: Votes
+        const votesRef = collection(db, 'artifacts', appId, 'public', 'data', 'votes');
+        onSnapshot(votesRef, (snapshot) => {
+          state.votes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+          recomputeAndRenderAll();
+        }, (err) => {
+          console.error('Votes snapshot error:', err);
+        });
+
+        // Listener 3: Event Settings (Reveal State & Candidate Counter)
+        const settingRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'eventState');
+        onSnapshot(settingRef, (docSnap) => {
+          const data = docSnap.exists() ? docSnap.data() : { isRevealed: false, nextCandidateIndex: 0 };
+          state.isRevealed = Boolean(data.isRevealed);
+          if (typeof data.nextCandidateIndex === 'number') {
+            state.nextCandidateIndex = data.nextCandidateIndex;
+          }
+
+          if (!state.isSubmitOnlyMode) {
+            if (state.isRevealed && !state.previousRevealed) {
+              triggerCelebrationConfetti();
+            }
+            state.previousRevealed = state.isRevealed;
+            renderRevealSection();
+          }
+        }, (err) => {
+          console.error('Settings snapshot error:', err);
+        });
+
+        // Hide loading screen & determine initial tab
+        document.getElementById('loading-screen').classList.add('hidden');
+
+        if (state.isSubmitOnlyMode) {
+          switchTab('nominate');
+        } else if (initialTab && ['nominate', 'wall', 'vote', 'reveal'].includes(initialTab)) {
+          switchTab(initialTab);
+        } else {
+          switchTab('nominate');
+        }
+
+      } catch (error) {
+        console.error('Firebase initialization failed:', error);
+        document.getElementById('loading-screen').innerHTML = `
+          <div class="p-6 rounded-3xl bg-rose-50 border border-rose-200 text-rose-800 max-w-md mx-auto">
+            <div class="text-3xl mb-2">⚠️</div>
+            <h3 class="font-bold mb-1">連線初始化失敗</h3>
+            <p class="text-xs leading-relaxed">無法連接到雲端資料庫，請重新整理頁面再試一次。</p>
+          </div>
+        `;
+      }
+    }
+
+    // Start app on load
+    bootstrapApp();
+  </script>
+</body>
+</html>
